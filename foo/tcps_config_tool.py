@@ -31,7 +31,9 @@ class Window(QWidget):
 
     def on_send_clicked(self):
         input_string = self._ui.txt_send.toPlainText()
-        self.send_data(input_string)
+        command_queue.push(input_string)
+        self._update_current_cmd()
+        self._execute_current_cmd()
 
     # 打开串口
     def open_port(self):
