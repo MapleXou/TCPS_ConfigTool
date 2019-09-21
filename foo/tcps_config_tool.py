@@ -14,6 +14,9 @@ class Window(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._check_timer = QTimer(self)  # 超时监测定时器
+        self._check_timer.setInterval(3000)  # 设定超时时间3秒
+
         self._read_timer = QTimer(self)  # 读数定时器
         self._read_timer.setInterval(100)
         # 初始化界面
@@ -27,6 +30,7 @@ class Window(QWidget):
         self._ui.btn_connect.clicked.connect(self.open_port)
         self._serial.readyRead.connect(self.read_data)
         self._ui.btn_send.clicked.connect(self.on_send_clicked)
+        self._check_timer.timeout.connect(self._check_timeout)
         self._read_timer.timeout.connect(self._read_timeout)
 
     def on_send_clicked(self):
@@ -98,22 +102,42 @@ class Window(QWidget):
 
     # 执行当前指令，开启超时定时器
     def _execute_current_cmd(self):
+        self._check_timer.start()
         self.send_data(self._current_cmd)
 
     def _update_current_cmd(self):
         self._current_cmd = command_queue.pop()
 
+    def _check_timeout(self):
+        # 关闭定时器
+        if self._check_timer.isActive():
+            self._check_timer.stop()
+        # 清空指令
+        while not command_queue.is_empty():
+            command_queue.pop()
+        QMessageBox.critical(self, 'Message', '指令执行超时' + self._current_cmd)
+
     def _read_timeout(self):
         # 关闭定时器
         if self._read_timer.isActive():
             self._read_timer.stop()
+        if self._check_timer.isActive():
+            self._check_timer.stop()
 
         response = str(self._buf, encoding='utf-8')
+        if not self._check_buf(self._buf):
+            self._retry_count += 1
+            if self._retry_count > 3:
+                QMessageBox.critical(self, 'Message', '尝试重试三次失败 指令：' + response)
+            else:
+                self._execute_current_cmd()
+            return
         print(self._buf)
         self._ui.txt_receive.append(response)
         self._buf.clear()
         # 重试次数清零
         _retry_count = 0
+        # 执行其他指令
         if not command_queue.is_empty():
             self._update_current_cmd()
             self._execute_current_cmd()
@@ -125,3 +149,18 @@ class Window(QWidget):
         command_queue.push('at&v')
         self._update_current_cmd()
         self._execute_current_cmd()
+
+    # 检查返回值是否正确
+    def _check_buf(self, buf):
+        if self._current_cmd == '+++':
+            if buf == b'ok\r\n':
+                return True
+        elif self._current_cmd == 'at&v':
+            buf_str = str(buf, encoding='utf-8')
+            if buf_str.startswith('at&v'):
+                return True
+        elif self._current_cmd == 'at&wa':
+            buf_str = str(buf, encoding='utf-8')
+            if buf_str.startswith('at&wa'):
+                return True
+        return False
