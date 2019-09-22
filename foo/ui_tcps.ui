@@ -96,6 +96,9 @@
    </item>
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -116,7 +119,7 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="radio_address">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -130,7 +133,7 @@
          <item row="1" column="1">
           <widget class="QLineEdit" name="radio_power">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -144,7 +147,7 @@
          <item row="2" column="1">
           <widget class="QComboBox" name="radio_baud_rate">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="currentText">
             <string>9600</string>
@@ -186,7 +189,7 @@
          <item>
           <widget class="QRadioButton" name="radio_client">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>从站</string>
@@ -196,7 +199,7 @@
          <item>
           <widget class="QRadioButton" name="radio_server">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>主站</string>
@@ -233,7 +236,7 @@
        <item>
         <widget class="QTextEdit" name="txt_send">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -242,7 +245,7 @@
          <item>
           <widget class="QPushButton" name="btn_send">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>发送</string>
